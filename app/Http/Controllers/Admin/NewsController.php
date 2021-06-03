@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\News;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -14,7 +16,13 @@ class NewsController extends Controller
      */
     public function index()
     {
-      return view('admin.news.index');
+      $news = News::with('category')
+		  ->orderBy('id', 'desc')
+		  ->paginate(5);
+
+      return view('admin.news.index', [
+      	'newsList' => $news
+	  ]);
     }
 
     /**
@@ -24,25 +32,34 @@ class NewsController extends Controller
      */
     public function create()
     {
-		return view('admin.news.create');
+    	$categories = Category::all();
+		return view('admin.news.create', [
+			'categories' => $categories
+		]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+     * @return \Illuminate\Http\RedirectResponse
+	 */
     public function store(Request $request)
     {
     	$request->validate([
     		'title' => ['required']
 		]);
 
-        $fields = $request->only('title', 'description', 'slug');
+        $fields = $request->only('category_id', 'title', 'description', 'image');
+        $fields['slug'] = \Str::slug($fields['title']);
+
+        $news = News::create($fields);
+        if($news) {
+			return redirect()->route('news.index');
+		}
 
 
-        return response()->json($fields);
+        return back();
     }
 
     /**
@@ -59,26 +76,41 @@ class NewsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(News $news)
     {
+    	$categories = Category::all();
 		return view('admin.news.edit', [
-			'id' => $id
+			'news' => $news,
+			'categories' => $categories
 		]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+	/**
+	 * Update the specified resource in storage.
+	 *
+	 * @param \Illuminate\Http\Request $request
+	 * @param News $news
+	 * @return \Illuminate\Http\Response
+	 */
+    public function update(Request $request, News $news)
     {
-        //
+		$request->validate([
+			'title' => ['required']
+		]);
+
+		$fields = $request->only('category_id', 'title', 'description', 'image', 'status');
+		$fields['slug'] = \Str::slug($fields['title']);
+
+
+		$news = $news->fill($fields)->save();
+		if($news) {
+			return redirect()->route('news.index');
+		}
+
+
+		return back();
     }
 
     /**

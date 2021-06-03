@@ -31,6 +31,14 @@ Route::group(['prefix' => 'admin'], function() {
 //news
 Route::get('/news', [NewsController::class, 'index'])
 	->name('news');
-Route::get('/news/{id}', [NewsController::class, 'show'])
+Route::get('/news/{news}', [NewsController::class, 'show'])
 	->where('id', '\d+')
     ->name('news.show');
+
+Route::get('/collections', function() {
+	 $collection = collect([
+	 	10, 15, 20, 25,30,50,75,100
+	 ]);
+
+	 dd($collection->map(fn($item) => $item *2)->count());
+});
