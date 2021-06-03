@@ -35,7 +35,14 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+    	$request->validate([
+    		'title' => ['required']
+		]);
+
+        $fields = $request->only('title', 'description', 'slug');
+
+
+        return response()->json($fields);
     }
 
     /**
@@ -82,6 +89,6 @@ class NewsController extends Controller
      */
     public function destroy($id)
     {
-        //
+
     }
 }

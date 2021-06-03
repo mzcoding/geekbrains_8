@@ -10,12 +10,4 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-
-    protected array $newsList = [
-    	'News 1',
-		'News 2',
-		'News 3',
-		'News 4',
-		'News 5'
-	];
 }
