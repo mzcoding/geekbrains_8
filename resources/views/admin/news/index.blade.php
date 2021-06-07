@@ -32,7 +32,7 @@
                     <td>{{ $news->status }}</td>
                     <td>{{ $news->created_at->format('d-m-Y H:i') }}</td>
                     <td><a href="{{ route('news.edit', ['news' => $news]) }}">Ред.</a>&nbsp;||&nbsp;
-                        <a href="javascript:;" class="delete">Уд.</a></td>
+                        <a href="javascript:;" class="delete" rel="{{ $news->id }}">Уд.</a></td>
                 </tr>
             @empty
                 <tr>
@@ -46,3 +46,35 @@
 
 
 @endsection
+@push('js')
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            const el = document.querySelectorAll(".delete");
+            console.log(el);
+            el.forEach(function(e, k) {
+               e.addEventListener("click", function() {
+                    const rel = e.getAttribute("rel");
+                    if(confirm("Подтверждаете удаление c #ID " + rel + " ?")) {
+                        submit("/admin/news/" + rel).then(() => {
+                            location.reload();
+                        })
+                    }
+                });
+            })
+
+        });
+
+        async function submit(url) {
+            let response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+
+            let result = await response.json();
+            return result.ok;
+        }
+    </script>
+@endpush

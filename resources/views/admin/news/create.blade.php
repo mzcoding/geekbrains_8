@@ -17,14 +17,31 @@
                     <label for="category_id">Категория *</label>
                     <select class="form-control" name="category_id" id="category_id">
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->title }}</option>
+                            <option value="{{ $category->id }}"
+                            @if(old('category_id') == $category->id) selected @endif>{{ $category->title }}
+                            </option>
                         @endforeach
                     </select>
+                    @if($errors->has('category_id'))
+                        <div class="alert alert-danger">
+                            @foreach($errors->get('category_id') as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
 
                 </div>
                 <div class="form-group">
                     <label for="title">Заголовок *</label>
                     <input type="text" class="form-control" name="title" id="title" value="{{ old('title') }}">
+                    @error('title') Любая ошибка @enderror
+                    @if($errors->has('title'))
+                        <div class="alert alert-danger">
+                            @foreach($errors->get('title') as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
 
                 <div class="form-group">
@@ -34,6 +51,13 @@
                 <div class="form-group">
                     <label for="description">Описание *</label>
                     <textarea class="form-control" name="description" id="description">{!! old('description') !!}</textarea>
+                    @if($errors->has('description'))
+                        <div class="alert alert-danger">
+                            @foreach($errors->get('description') as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
                 <br>
                 <button class="btn btn-success" type="submit">Добавить новость</button>
