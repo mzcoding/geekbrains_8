@@ -48,7 +48,7 @@ class NewsController extends Controller
 	 */
 	public function store(NewsCreate $request)
 	{
-		$fields = $request->only('category_id', 'title', 'description', 'image');
+		$fields = $request->validated();
 		$fields['slug'] = \Str::slug($fields['title']);
 
 		$news = News::create($fields);
@@ -57,6 +57,7 @@ class NewsController extends Controller
 		}
 
 		return back()->withInput();
+
 	}
 
 	/**

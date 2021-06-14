@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\ParserController;
+use App\Http\Controllers\SocialController;
+use App\Http\Controllers\Account\IndexController as AccountController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 
@@ -21,11 +24,20 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 Route::get('/', function () {
     return view('welcome');
 });
-
+//account
+Route::group(['middleware' => 'auth'], function() {
+Route::group(['prefix' => 'account'], function() {
+	Route::get('/', AccountController::class)->name('account');
+	Route::get('/logout', function() {
+		\Auth::logout();
+		return redirect()->route('login');
+	})->name('account.logout');
+});
 //admin
-Route::group(['prefix' => 'admin'], function() {
+Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function() {
 	Route::resource('/categories', AdminCategoryController::class);
 	Route::resource('/news', AdminNewsController::class);
+});
 });
 
 //news
@@ -35,10 +47,26 @@ Route::get('/news/{news}', [NewsController::class, 'show'])
 	->where('id', '\d+')
     ->name('news.show');
 
-Route::get('/collections', function() {
-	 $collection = collect([
-	 	10, 15, 20, 25,30,50,75,100
-	 ]);
+Route::get('/sessions', function() {
+	session(['newsession' => 'example text']);
+	if(session()->has('newsession')) {
+		//dd(session()->get('newsession'));
+		session()->remove('newsession');
+		//dd(session()->all());
+	}
+	echo "Сессия не установлена";
 
-	 dd($collection->map(fn($item) => $item *2)->count());
+});
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/parser', [ParserController::class, 'index']);
+
+Route::group(['middleware' => 'guest'], function() {
+	Route::get('/login/vk', [SocialController::class, 'login'])
+		->name('vk.login');
+	Route::get('/callback/vk', [SocialController::class, 'callback'])
+		->name('vk.callback');
 });
