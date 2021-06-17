@@ -11,7 +11,7 @@
                 @endforeach
             @endif
 
-            <form method="post" action="{{ route('news.store', ['name' => 'test']) }}">
+            <form method="post" action="{{ route('news.store', ['name' => 'test']) }}" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
                     <label for="category_id">Категория *</label>

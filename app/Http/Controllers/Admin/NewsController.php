@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\NewsCreate;
 use App\Models\Category;
 use App\Models\News;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class NewsController extends Controller
@@ -45,11 +47,13 @@ class NewsController extends Controller
 	 *
 	 * @param \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\RedirectResponse
+	 * @throws \Exception
 	 */
-	public function store(NewsCreate $request)
+	public function store(NewsCreate $request, FileUploadService $uploadedService): \Illuminate\Http\RedirectResponse
 	{
 		$fields = $request->validated();
 		$fields['slug'] = \Str::slug($fields['title']);
+		$fields['image'] = $uploadedService->upload($request);
 
 		$news = News::create($fields);
 		if ($news) {
@@ -92,7 +96,7 @@ class NewsController extends Controller
 	 * @param News $news
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(Request $request, News $news)
+	public function update(Request $request, News $news, FileUploadService $uploadedService)
 	{
 		$request->validate([
 			'title' => ['required']
@@ -100,11 +104,12 @@ class NewsController extends Controller
 
 		$fields = $request->only('category_id', 'title', 'description', 'image', 'status');
 		$fields['slug'] = \Str::slug($fields['title']);
-
+		$fields['image'] = $uploadedService->upload($request);
 
 		$news = $news->fill($fields)->save();
 		if ($news) {
-			return redirect()->route('news.index');
+			return redirect()->route('news.index')
+				->with('success', 'Запись успешно обновлена');
 		}
 
 

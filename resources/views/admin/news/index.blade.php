@@ -12,6 +12,9 @@
         </div>
     </div>
     <div class="table-responsive">
+        @if(session()->has('success'))
+            <div class="alert alert-success">{{ session()->get('success') }}</div>
+        @endif
         <table class="table table-bordered">
             <thead>
             <tr>
